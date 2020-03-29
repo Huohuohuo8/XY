@@ -1,0 +1,399 @@
+**********************************************************************************************
+**********************************************************************************************
+**********************************************************************************************
+连接
+**********************************************************************************************
+使用 \l 用于查看已经存在的数据库：
+postgres=# \l
+                             List of databases
+   Name    |  Owner   | Encoding | Collate | Ctype |   Access privileges   
+-----------+----------+----------+---------+-------+-----------------------
+ postgres  | postgres | UTF8     | C       | C     | 
+ runoobdb  | postgres | UTF8     | C       | C     | 
+ template0 | postgres | UTF8     | C       | C     | =c/postgres          +
+           |          |          |         |       | postgres=CTc/postgres
+ template1 | postgres | UTF8     | C       | C     | =c/postgres          +
+           |          |          |         |       | postgres=CTc/postgres
+(4 rows)
+**********************************************************************************************
+
+接下来我们可以使用 \c + 数据库名 来进入数据库：
+postgres=# \c runoobdb
+You are now connected to database "runoobdb" as user "postgres".
+runoobdb=# 
+
+**********************************************************************************************
+**********************************************************************************************
+CREATE TABLE
+**********************************************************************************************
+CREATE TABLE COMPANY(
+   ID INT PRIMARY KEY     NOT NULL,
+   NAME           TEXT    NOT NULL,
+   AGE            INT     NOT NULL,
+   ADDRESS        CHAR(50),
+   SALARY         REAL
+);
+接下来我们再创建一个表格，在后面章节会用到：
+
+CREATE TABLE DEPARTMENT(
+   ID INT PRIMARY KEY      NOT NULL,
+   DEPT           CHAR(50) NOT NULL,
+   EMP_ID         INT      NOT NULL
+);
+我们可以使用 \d 命令来查看表格是否创建成功：
+
+runoobdb=# \d
+           List of relations
+ Schema |    Name    | Type  |  Owner   
+--------+------------+-------+----------
+ public | company    | table | postgres
+ public | department | table | postgres
+(2 rows)
+\d tablename 查看表格信息：
+
+runoobdb=# \d company
+                  Table "public.company"
+ Column  |     Type      | Collation | Nullable | Default 
+---------+---------------+-----------+----------+---------
+ id      | integer       |           | not null | 
+ name    | text          |           | not null | 
+ age     | integer       |           | not null | 
+ address | character(50) |           |          | 
+ salary  | real          |           |          | 
+Indexes:
+    "company_pkey" PRIMARY KEY, btree (id)
+    
+    
+**********************************************************************************************    
+**********************************************************************************************
+schema
+**********************************************************************************************
+实例
+接下来我们连接到 runoobdb 来创建模式 myschema：
+
+runoobdb=# create schema myschema;
+CREATE SCHEMA
+输出结果 "CREATE SCHEMA" 就代表模式创建成功。
+
+接下来我们再创建一个表格：
+
+runoobdb=# create table myschema.company(
+   ID   INT              NOT NULL,
+   NAME VARCHAR (20)     NOT NULL,
+   AGE  INT              NOT NULL,
+   ADDRESS  CHAR (25),
+   SALARY   DECIMAL (18, 2),
+   PRIMARY KEY (ID)
+);
+以上命令创建了一个空的表格，我们使用以下 SQL 来查看表格是否创建：
+
+runoobdb=# select * from myschema.company;
+ id | name | age | address | salary 
+----+------+-----+---------+--------
+(0 rows)
+删除模式
+删除一个为空的模式（其中的所有对象已经被删除）：
+
+DROP SCHEMA myschema;
+删除一个模式以及其中包含的所有对象：
+
+DROP SCHEMA myschema CASCADE;
+
+
+**********************************************************************************************
+**********************************************************************************************
+PostgreSQL INSERT INTO 语句
+**********************************************************************************************
+实例
+在 runoobdb 数据库中创建 COMPANY 表：
+
+runoobdb=# CREATE TABLE COMPANY(
+   ID INT PRIMARY KEY     NOT NULL,
+   NAME           TEXT    NOT NULL,
+   AGE            INT     NOT NULL,
+   ADDRESS        CHAR(50),
+   SALARY         REAL,
+   JOIN_DATE      DATE
+);
+在 COMPANY 表中插入以下数据：
+
+runoobdb=# INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY,JOIN_DATE) VALUES (1, 'Paul', 32, 'California', 20000.00,'2001-07-13');
+INSERT 0 1
+以下插入语句忽略 SALARY 字段：
+
+runoobdb=# INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,JOIN_DATE) VALUES (2, 'Allen', 25, 'Texas', '2007-12-13');
+INSERT 0 1
+以下插入语句 JOIN_DATE 字段使用 DEFAULT 子句来设置默认值，而不是指定值：
+
+runoobdb=# INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY,JOIN_DATE) VALUES (3, 'Teddy', 23, 'Norway', 20000.00, DEFAULT );
+INSERT 0 1
+以下实例插入多行：
+
+runoobdb=# INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY,JOIN_DATE) VALUES (4, 'Mark', 25, 'Rich-Mond ', 65000.00, '2007-12-13' ), (5, 'David', 27, 'Texas', 85000.00, '2007-12-13');
+INSERT 0 2
+使用 SELECT 语句查询表格数据：
+
+runoobdb=# SELECT * FROM company;
+
+ID        NAME        AGE        ADDRESS     SALARY   JOIN_DATE
+----      ----------  -----      ----------  -------      --------
+1         Paul        32         California  20000.0      2001-07-13
+2         Allen       25         Texas                    2007-12-13
+3         Teddy       23         Norway      20000.0
+4         Mark        25         Rich-Mond   65000.0      2007-12-13
+5         David       27         Texas       85000.0      2007-12-13
+
+
+
+**********************************************************************************************
+**********************************************************************************************
+PostgreSQL 运算符
+**********************************************************************************************
+算术运算符
+假设变量 a 为 2，变量 b 为 3，则：
+
+运算符	描述	实例
++	加	a + b 结果为 5
+-	减	a - b 结果为 -1
+*	乘	a * b 结果为 6
+/	除	b / a 结果为 1
+%	模（取余）	b % a 结果为 1
+^	指数	a ^ b 结果为 8
+|/	平方根	|/ 25.0 结果为 5
+||/	立方根	||/ 27.0 结果为 3
+!	阶乘	5 ! 结果为 120
+!!	阶乘（前缀操作符）	!! 5 结果为 120
+
+
+
+**********************************************************************************************
+**********************************************************************************************
+PostgreSQL update 语句  delete 语句
+**********************************************************************************************
+以下实例将更新 COMPANY 表中 id 为 3 的 salary 字段值：
+runoobdb=# UPDATE COMPANY SET SALARY = 15000 WHERE ID = 3;
+
+以下实例将同时更新 salary 字段和 address 字段的值：
+runoobdb=# UPDATE COMPANY SET ADDRESS = 'Texas', SALARY=20000;
+
+以下 SQL 语句将删除 ID 为 2 的数据：
+runoobdb=# DELETE FROM COMPANY WHERE ID = 2;
+
+以下语句将删除整张 COMPANY 表：
+DELETE FROM COMPANY;
+
+
+**********************************************************************************************
+**********************************************************************************************
+PostgreSQL LIKE 子句
+**********************************************************************************************
+实例
+下面是 LIKE 语句中演示了 % 和 _ 的一些差别:
+
+实例	描述
+WHERE SALARY::text LIKE '200%'	找出 SALARY 字段中以 200 开头的数据。
+WHERE SALARY::text LIKE '%200%'	找出 SALARY 字段中含有 200 字符的数据。
+WHERE SALARY::text LIKE '_00%'	找出 SALARY 字段中在第二和第三个位置上有 00 的数据。
+WHERE SALARY::text LIKE '2 % %'	找出 SALARY 字段中以 2 开头的字符长度大于 3 的数据。
+WHERE SALARY::text LIKE '%2'	找出 SALARY 字段中以 2 结尾的数据
+WHERE SALARY::text LIKE '_2%3'	找出 SALARY 字段中 2 在第二个位置上并且以 3 结尾的数据
+WHERE SALARY::text LIKE '2___3'	找出 SALARY 字段中以 2 开头，3 结尾并且是 5 位数的数据
+
+
+**********************************************************************************************
+**********************************************************************************************
+PostgreSQL LIMIT 子句
+**********************************************************************************************
+runoobdb# select * from COMPANY;
+ id | name  | age | address   | salary
+----+-------+-----+-----------+--------
+  1 | Paul  |  32 | California|  20000
+  2 | Allen |  25 | Texas     |  15000
+  3 | Teddy |  23 | Norway    |  20000
+  4 | Mark  |  25 | Rich-Mond |  65000
+  5 | David |  27 | Texas     |  85000
+  6 | Kim   |  22 | South-Hall|  45000
+  7 | James |  24 | Houston   |  10000
+(7 rows)
+下面实例将找出限定的数量的数据，即读取 4 条数据：
+
+runoobdb=# SELECT * FROM COMPANY LIMIT 4;
+得到以下结果：
+
+ id | name  | age | address     | salary
+----+-------+-----+-------------+--------
+  1 | Paul  |  32 | California  |  20000
+  2 | Allen |  25 | Texas       |  15000
+  3 | Teddy |  23 | Norway      |  20000
+  4 | Mark  |  25 | Rich-Mond   |  65000
+(4 rows)
+但是，在某些情况下，可能需要从一个特定的偏移开始提取记录。
+
+下面是一个实例，从第三位开始提取 3 个记录：
+
+runoobdb=# SELECT * FROM COMPANY LIMIT 3 OFFSET 2;
+得到以下结果：
+
+ id | name  | age | address   | salary
+----+-------+-----+-----------+--------
+  3 | Teddy |  23 | Norway    |  20000
+  4 | Mark  |  25 | Rich-Mond |  65000
+  5 | David |  27 | Texas     |  85000
+(3 rows)
+
+
+
+**********************************************************************************************
+**********************************************************************************************
+PostgreSQL GROUP BY 语句
+**********************************************************************************************
+runoobdb=# SELECT NAME, SUM(SALARY) FROM COMPANY GROUP BY NAME;
+得到以下结果：
+
+  name  |  sum
+ -------+-------
+  Teddy | 20000
+  Paul  | 20000
+  Mark  | 65000
+  David | 85000
+  Allen | 15000
+  Kim   | 45000
+  James | 10000
+(7 rows)
+现在我们添加使用下面语句在 CAMPANY 表中添加三条记录：
+
+INSERT INTO COMPANY VALUES (8, 'Paul', 24, 'Houston', 20000.00);
+INSERT INTO COMPANY VALUES (9, 'James', 44, 'Norway', 5000.00);
+INSERT INTO COMPANY VALUES (10, 'James', 45, 'Texas', 5000.00);
+现在 COMPANY 表中存在重复的名称，数据如下：
+
+ id | name  | age | address      | salary
+ ----+-------+-----+--------------+--------
+   1 | Paul  |  32 | California   |  20000
+   2 | Allen |  25 | Texas        |  15000
+   3 | Teddy |  23 | Norway       |  20000
+   4 | Mark  |  25 | Rich-Mond    |  65000
+   5 | David |  27 | Texas        |  85000
+   6 | Kim   |  22 | South-Hall   |  45000
+   7 | James |  24 | Houston      |  10000
+   8 | Paul  |  24 | Houston      |  20000
+   9 | James |  44 | Norway       |   5000
+  10 | James |  45 | Texas        |   5000
+(10 rows)
+现在再根据 NAME 字段值进行分组，找出每个客户的工资总额：
+
+runoobdb=# SELECT NAME, SUM(SALARY) FROM COMPANY GROUP BY NAME ORDER BY NAME;
+这时的得到的结果如下：
+
+name  |  sum
+-------+-------
+ Allen | 15000
+ David | 85000
+ James | 20000
+ Kim   | 45000
+ Mark  | 65000
+ Paul  | 40000
+ Teddy | 20000
+(7 rows)
+下面实例将 ORDER BY 子句与 GROUP BY 子句一起使用：
+
+runoobdb=#  SELECT NAME, SUM(SALARY) FROM COMPANY GROUP BY NAME ORDER BY NAME DESC;
+得到以下结果：
+
+name  |  sum
+-------+-------
+ Teddy | 20000
+ Paul  | 40000
+ Mark  | 65000
+ Kim   | 45000
+ James | 20000
+ David | 85000
+ Allen | 15000
+(7 rows)
+
+
+
+**********************************************************************************************
+**********************************************************************************************
+PostgreSQL WITH 子句
+**********************************************************************************************
+在 PostgreSQL 中，WITH 子句提供了一种编写辅助语句的方法，以便在更大的查询中使用。
+
+WITH 子句有助于将复杂的大型查询分解为更简单的表单，便于阅读。这些语句通常称为通用表表达式（Common Table Express， CTE），也可以当做一个为查询而存在的临时表。
+
+WITH 子句是在多次执行子查询时特别有用，允许我们在查询中通过它的名称(可能是多次)引用它。
+
+WITH 子句在使用前必须先定义。
+
+
+
+**********************************************************************************************
+**********************************************************************************************
+PostgreSQL HAVING 子句
+**********************************************************************************************
+HAVING 子句可以让我们筛选分组后的各组数据。
+WHERE 子句在所选列上设置条件，而 HAVING 子句则在由 GROUP BY 子句创建的分组上设置条件。
+创建 COMPANY 表（下载 COMPANY SQL 文件 ），数据内容如下：
+
+runoobdb# select * from COMPANY;
+ id | name  | age | address   | salary
+----+-------+-----+-----------+--------
+  1 | Paul  |  32 | California|  20000
+  2 | Allen |  25 | Texas     |  15000
+  3 | Teddy |  23 | Norway    |  20000
+  4 | Mark  |  25 | Rich-Mond |  65000
+  5 | David |  27 | Texas     |  85000
+  6 | Kim   |  22 | South-Hall|  45000
+  7 | James |  24 | Houston   |  10000
+(7 rows)
+下面实例将找出根据 NAME 字段值进行分组，并且 name(名称) 字段的计数少于 2 数据：
+
+SELECT NAME FROM COMPANY GROUP BY name HAVING count(name) < 2;
+得到以下结果：
+
+  name
+ -------
+  Teddy
+  Paul
+  Mark
+  David
+  Allen
+  Kim
+  James
+(7 rows)
+我们往表里添加几条数据：
+
+INSERT INTO COMPANY VALUES (8, 'Paul', 24, 'Houston', 20000.00);
+INSERT INTO COMPANY VALUES (9, 'James', 44, 'Norway', 5000.00);
+INSERT INTO COMPANY VALUES (10, 'James', 45, 'Texas', 5000.00);
+此时，COMPANY 表的记录如下：
+
+ id | name  | age | address      | salary
+ ----+-------+-----+--------------+--------
+   1 | Paul  |  32 | California   |  20000
+   2 | Allen |  25 | Texas        |  15000
+   3 | Teddy |  23 | Norway       |  20000
+   4 | Mark  |  25 | Rich-Mond    |  65000
+   5 | David |  27 | Texas        |  85000
+   6 | Kim   |  22 | South-Hall   |  45000
+   7 | James |  24 | Houston      |  10000
+   8 | Paul  |  24 | Houston      |  20000
+   9 | James |  44 | Norway       |   5000
+  10 | James |  45 | Texas        |   5000
+(10 rows)
+下面实例将找出根据 name 字段值进行分组，并且名称的计数大于 1 数据：
+
+runoobdb-# SELECT NAME FROM COMPANY GROUP BY name HAVING count(name) > 1;
+得到结果如下：
+
+ name
+-------
+ Paul
+ James
+(2 rows)
+
+
+
+**********************************************************************************************
+**********************************************************************************************
+**********************************************************************************************
